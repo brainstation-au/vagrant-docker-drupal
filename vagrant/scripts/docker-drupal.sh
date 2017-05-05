@@ -40,17 +40,17 @@ if [ -z "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
   fi
 
   # Get a mount point for drupal files.
-  SITES_DEFAULT_MOUNT="${MOUNT_LOCATION}/sites-default"
-  mkdir -p $SITES_DEFAULT_MOUNT
+  V_MOUNT_DEFAULT="${MOUNT_LOCATION}/sites-default"
+  mkdir -p $V_MOUNT_DEFAULT
   
   # Create the data zip file.
   DATA_FILE="/vagrant/data/files.tar.gz"
   if [ -f "${DATA_FILE}" ]; then
-    tar -xvzf $DATA_FILE -C $SITES_DEFAULT_MOUNT
+    tar -xvzf $DATA_FILE -C $V_MOUNT_DEFAULT
   fi
 
   # Change file user/group to support apache.
-  chown -R www-data:www-data $SITES_DEFAULT_MOUNT
+  chown -R www-data:www-data $V_MOUNT_DEFAULT
 
   # Build mysql container.
   docker build -t brainstation/drupal:latest /vagrant/apps/drupal
@@ -59,7 +59,7 @@ if [ -z "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
   docker run --name ${CONTAINER_NAME} \
     -h ${CONTAINER_NAME} \
     --link ${MYSQL_CONTAINER}:mysql \
-    -v ${SITES_DEFAULT_MOUNT}:${SITES_DEFAULT} \
+    -v ${V_MOUNT_DEFAULT}:${D_MOUNT_DEFAULT} \
     -v /vagrant/bin:/drupal/bin \
     -v /var/www/drupal:/var/www/html \
     -p 80:80 \

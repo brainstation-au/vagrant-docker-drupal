@@ -15,20 +15,21 @@ if [ -f "${VARS_FILE}" ] && [ -z "$(${WORKDIR}/vendor/drush/drush/drush status |
 
   # Create symlink for public/private file folder.
   DRUPAL_DEFAULT="${WORKDIR}/web/sites/default"
+  MOUNT_DEFAULT=$D_MOUNT_DEFAULT
   for FOLDER in files private
   do
     if [ -d ${DRUPAL_DEFAULT}/${FOLDER} ]; then
-      if [ -d ${SITES_DEFAULT}/${FOLDER} ]; then rm -rf ${SITES_DEFAULT}/${FOLDER}; fi
-      mv ${SITES_DEFAULT}/${FOLDER} $DRUPAL_DEFAULT
+      if [ -d ${MOUNT_DEFAULT}/${FOLDER} ]; then rm -rf ${MOUNT_DEFAULT}/${FOLDER}; fi
+      mv ${MOUNT_DEFAULT}/${FOLDER} $DRUPAL_DEFAULT
     else
-      if [ ! -d ${SITES_DEFAULT}/${FOLDER} ]; then mkdir -p ${SITES_DEFAULT}/${FOLDER}; fi
+      if [ ! -d ${MOUNT_DEFAULT}/${FOLDER} ]; then mkdir -p ${MOUNT_DEFAULT}/${FOLDER}; fi
     fi
     if [ ! -L ${DRUPAL_DEFAULT}/${FOLDER} ]; then
-      ln -s ${SITES_DEFAULT}/${FOLDER}/ ${DRUPAL_DEFAULT}/${FOLDER}
+      ln -s ${MOUNT_DEFAULT}/${FOLDER}/ ${DRUPAL_DEFAULT}/${FOLDER}
       chmod +x ${DRUPAL_DEFAULT}/${FOLDER}
     fi
   done
-  chown -R www-data:www-data ${SITES_DEFAULT}
+  chown -R www-data:www-data ${MOUNT_DEFAULT}
 
   cd ${WORKDIR}/web
   drupal site:install  standard \
@@ -45,7 +46,7 @@ if [ -f "${VARS_FILE}" ] && [ -z "$(${WORKDIR}/vendor/drush/drush/drush status |
     --account-name=$ACCOUNT_NAME \
     --account-pass=$ACCOUNT_PASS \
     --no-interaction
-  chown -R www-data:www-data ${SITES_DEFAULT}
+  chown -R www-data:www-data ${MOUNT_DEFAULT}
   ../vendor/drush/drush/drush cache-rebuild
 fi
 
