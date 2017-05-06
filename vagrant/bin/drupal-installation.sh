@@ -24,26 +24,26 @@ if [ -f ${WORKDIR}/vendor/drush/drush/drush ]; then
   ln -s ${WORKDIR}/vendor/drush/drush/drush /usr/local/bin/drush
 fi
 
+# Create symlink for public/private file folder.
+DRUPAL_DEFAULT="${WORKDIR}/web/sites/default"
+MOUNT_DEFAULT=$D_MOUNT_DEFAULT
+for FOLDER in files private
+do
+  if [ -d ${DRUPAL_DEFAULT}/${FOLDER} ] && [ ! -L ${DRUPAL_DEFAULT}/${FOLDER} ]; then
+    if [ -d ${MOUNT_DEFAULT}/${FOLDER} ]; then rm -rf ${MOUNT_DEFAULT}/${FOLDER}; fi
+    mv ${DRUPAL_DEFAULT}/${FOLDER} ${MOUNT_DEFAULT}/
+  else
+    if [ ! -d ${MOUNT_DEFAULT}/${FOLDER} ]; then mkdir -p ${MOUNT_DEFAULT}/${FOLDER}; fi
+  fi
+  if [ ! -L ${DRUPAL_DEFAULT}/${FOLDER} ]; then
+    ln -s ${MOUNT_DEFAULT}/${FOLDER}/ ${DRUPAL_DEFAULT}/${FOLDER}
+    chmod +x ${DRUPAL_DEFAULT}/${FOLDER}
+  fi
+done
+chown -R www-data:www-data ${MOUNT_DEFAULT}
+
 # Install drupal.
 if [ -f "${VARS_FILE}" ] && [ -f ${WORKDIR}/vendor/drush/drush/drush ] && [ -z "$(${WORKDIR}/vendor/drush/drush/drush status | grep ${MYSQL_CONTAINER})" ]; then
-  # Create symlink for public/private file folder.
-  DRUPAL_DEFAULT="${WORKDIR}/web/sites/default"
-  MOUNT_DEFAULT=$D_MOUNT_DEFAULT
-  for FOLDER in files private
-  do
-    if [ ! -L ${DRUPAL_DEFAULT}/${FOLDER} ]; then
-      if [ -d ${MOUNT_DEFAULT}/${FOLDER} ]; then rm -rf ${MOUNT_DEFAULT}/${FOLDER}; fi
-      mv ${MOUNT_DEFAULT}/${FOLDER} $DRUPAL_DEFAULT
-    else
-      if [ ! -d ${MOUNT_DEFAULT}/${FOLDER} ]; then mkdir -p ${MOUNT_DEFAULT}/${FOLDER}; fi
-    fi
-    if [ ! -L ${DRUPAL_DEFAULT}/${FOLDER} ]; then
-      ln -s ${MOUNT_DEFAULT}/${FOLDER}/ ${DRUPAL_DEFAULT}/${FOLDER}
-      chmod +x ${DRUPAL_DEFAULT}/${FOLDER}
-    fi
-  done
-  chown -R www-data:www-data ${MOUNT_DEFAULT}
-
   cd ${WORKDIR}/web
   drupal site:install  standard \
     --langcode="en" \
