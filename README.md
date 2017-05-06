@@ -55,6 +55,8 @@ all necessary php libraries.
 - Get your project database file ready as `drupal.sql.gz`.
 - If your project is a drupal 7 project, the path for the private files should
   be `sites/default/private`
+- Please note that we handle data directories in a way that every time you
+  rebuild your box, you will get fresh data files that matches with you dbdump.
 
 #### Follow the steps below:
 
