@@ -31,20 +31,15 @@ fi
 
 # Check if drupal container is already installed.
 if [ -z "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
-  # Data mount location.
-  MOUNT_LOCATION="${VOLUME_MOUNT}/${CONTAINER_NAME}"
-  if [ -d $MOUNT_LOCATION ]; then
-    rm -rf ${MOUNT_LOCATION}/*
-  else
-    mkdir -p $MOUNT_LOCATION
-  fi
-
   # Get a mount point for drupal files.
-  V_MOUNT_DEFAULT="${MOUNT_LOCATION}/sites-default"
+  V_MOUNT_DEFAULT="${VOLUME_MOUNT}/${CONTAINER_NAME}/sites-default"
+  if [ -d $V_MOUNT_DEFAULT ]; then
+    rm -rf ${V_MOUNT_DEFAULT}
+  fi
   mkdir -p $V_MOUNT_DEFAULT
   
   # Create the data zip file.
-  DATA_FILE="/vagrant/data/files.tar.gz"
+  DATA_FILE="/vagrant/apps/drupal/files.tar.gz"
   if [ -f "${DATA_FILE}" ]; then
     tar -xvzf $DATA_FILE -C $V_MOUNT_DEFAULT
   fi

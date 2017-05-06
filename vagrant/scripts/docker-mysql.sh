@@ -20,8 +20,14 @@ set -x
 
 # Check if mysql container is already installed.
 if [ -z "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
-  # Download 'mysql' docker image.
-  docker pull mysql:${MYSQL_VERSION}
+  # Get 'mysql' docker image.
+  if [ -f /vagrant/apps/mysql/drupal.sql.gz ]; then
+    DOCKER_IMAGE="brainstation/mysql:latest"
+    docker build -t $DOCKER_IMAGE /vagrant/apps/mysql
+  else
+    DOCKER_IMAGE="mysql:${MYSQL_VERSION}"
+    docker pull $DOCKER_IMAGE
+  fi
 
   # Run the 'mysql' docker image.
   docker run --name ${CONTAINER_NAME} \
@@ -30,7 +36,7 @@ if [ -z "$(docker ps -a | grep ${CONTAINER_NAME})" ]; then
     -e MYSQL_DATABASE=${MYSQL_DATABASE} \
     -e MYSQL_USER=${MYSQL_USER} \
     -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
-    -d mysql:${MYSQL_VERSION}
+    -d $DOCKER_IMAGE
 else
   if [ -z "$(docker ps | grep ${CONTAINER_NAME})" ]; then
     docker start ${CONTAINER_NAME}
